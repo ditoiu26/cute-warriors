@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Cute Warriors</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#17152d;color:white;font-family:Arial;text-align:center}
+h1{color:#ffe17b}
+canvas{width:100%;max-width:720px;background:#28564c;display:block;margin:auto;touch-action:none}
+.stats{display:flex;justify-content:space-around;padding:12px;font-size:19px}
+.controls{display:flex;justify-content:space-around;align-items:center;padding:18px}
+button{background:#7652c8;color:white;border:0;border-radius:15px;padding:17px;font-weight:bold;font-size:17px}
+#stick{width:125px;height:125px;border-radius:50%;background:#35304e;position:relative;touch-action:none}
+#nub{position:absolute;width:48px;height:48px;background:#b69aff;border-radius:50%;left:38px;top:38px}
+#overlay{position:fixed;inset:0;background:#101025ee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px}
+</style>
+</head>
+<body>
+<h1>🔥 CUTE WARRIORS ⚔️</h1>
+<div class="stats">
+<span>❤️ <b id="hp">100</b></span>
+<span>⭐ <b id="score">0</b></span>
+</div>
+<canvas id="game" width="720" height="480"></canvas>
+<div class="controls">
+<div id="stick"><div id="nub"></div></div>
+<div>
+<button id="hit">⚔️ ATAC</button>
+<br><br>
+<button id="dash">💨 DASH</button>
+</div>
+</div>
+<div id="overlay">
+<h1>CUTE WARRIORS</h1>
+<p>Apără Crystal Island!</p>
+<button id="start">START BATTLE</button>
+</div>
+<script>
+const c=document.getElementById('game');
+const ctx=c.getContext('2d');
+const $=id=>document.getElementById(id);
+let p,enemies,hp,score,active,move={x:0,y:0},attack=0,dash=0,spawn=0,last=0;
+function reset(){
+p={x:360,y:350};enemies=[];hp=100;score=0;
+active=true;spawn=0;update();
+$('overlay').style.display='none';
+}
+function update(){
+$('hp').textContent=Math.ceil(hp);
+$('score').textContent=score;
+}
+function createEnemy(){
+let a=Math.random()*Math.PI*2;
+enemies.push({x:360+Math.cos(a)*340,y:240+Math.sin(a)*220,hp:2});
+}
+function hit(){
+if(!active)return;
+attack=performance.now()+200;
+for(let i=enemies.length-1;i>=0;i--){
+let e=enemies[i];
+if(Math.hypot(e.x-p.x,e.y-p.y)<75){
+e.hp--;
+if(e.hp<=0){enemies.splice(i,1);score+=100;update();}
+}
+}
+}
+function draw(){
+ctx.clearRect(0,0,720,480);
+ctx.fillStyle='#28584b';ctx.fillRect(0,0,720,480);
+for(let y=0;y<480;y+=40)for(let x=0;x<720;x+=40){
+ctx.fillStyle=(x+y)%80?'#306052':'#285448';
+ctx.fillRect(x,y,38,38);
+}
+for(let i=0;i<7;i++){
+ctx.fillStyle='#64dce0';ctx.beginPath();
+ctx.arc(60+i*100,90+(i%2)*280,12,0,Math.PI*2);ctx.fill();
+}
+enemies.forEach(e=>{
+ctx.fillStyle='#a849c4';ctx.beginPath();
+ctx.arc(e.x,e.y,17,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='white';ctx.beginPath();
+ctx.arc(e.x-5,e.y-4,3,0,Math.PI*2);ctx.arc(e.x+5,e.y-4,3,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#ff7cae';ctx.fillRect(e.x-12,e.y-25,24,4);
+});
+ctx.fillStyle='#f47b37';ctx.beginPath();
+ctx.arc(p.x,p.y,19,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#ffc16a';ctx.beginPath();
+ctx.arc(p.x,p.y-7,12,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#222';ctx.beginPath();
+ctx.arc(p.x-5,p.y-8,2,0,Math.PI*2);ctx.arc(p.x+5,p.y-8,2,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle='#ffe36b';ctx.lineWidth=5;
+ctx.beginPath();ctx.moveTo(p.x+12,p.y);ctx.lineTo(p.x+28,p.y-20);ctx.stroke();
+if(performance.now()<attack){
+ctx.strokeStyle='#fff2a0';ctx.lineWidth=7;
+ctx.beginPath();ctx.arc(p.x,p.y,50,-1,1);ctx.stroke();
+}
+}
+function finish(){
+active=false;
+$('overlay').style.display='flex';
+$('overlay').innerHTML='<h1>GAME OVER</h1><p>Scorul tău: '+score+'</p><button onclick="reset()">JOACĂ DIN NOU</button>';
+}
+function loop(t){
+let dt=Math.min((t-last)/1000,.04)||0;last=t;
+if(active){
+let speed=190*(t<dash?2.5:1);
+let n=Math.hypot(move.x,move.y)||1;
+p.x=Math.max(20,Math.min(700,p.x+move.x/n*speed*dt));
+p.y=Math.max(20,Math.min(460,p.y+move.y/n*speed*dt));
+spawn-=dt;
+if(spawn<=0&&enemies.length<7){createEnemy();spawn=1.5;}
+for(let e of enemies){
+let dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
+e.x+=dx/d*65*dt;e.y+=dy/d*65*dt;
+if(d<34&&t>dash){hp-=20*dt;update();}
+}
+if(hp<=0)finish();
+}
+draw();requestAnimationFrame(loop);
+}
+$('start').onclick=reset;
+$('hit').onclick=hit;
+$('dash').onclick=()=>{dash=performance.now()+400;};
+const stick=$('stick'),nub=$('nub');
+function joystick(e){
+let r=stick.getBoundingClientRect();
+let x=e.clientX-r.left-r.width/2;
+let y=e.clientY-r.top-r.height/2;
+let d=Math.hypot(x,y),max=42;
+if(d>max){x=x/d*max;y=y/d*max;}
+nub.style.left=(38+x)+'px';nub.style.top=(38+y)+'px';
+move={x:x/max,y:y/max};
+}
+stick.onpointerdown=e=>{stick.setPointerCapture(e.pointerId);joystick(e)};
+stick.onpointermove=e=>{if(e.buttons)joystick(e)};
+stick.onpointerup=stick.onpointercancel=()=>{
+move={x:0,y:0};nub.style.left='38px';nub.style.top='38px';
+};
+window.onkeydown=e=>{
+if(e.key==='ArrowUp'||e.key==='w')move.y=-1;
+if(e.key==='ArrowDown'||e.key==='s')move.y=1;
+if(e.key==='ArrowLeft'||e.key==='a')move.x=-1;
+if(e.key==='ArrowRight'||e.key==='d')move.x=1;
+if(e.code==='Space')hit();
+if(e.key==='Shift')dash=performance.now()+400;
+};
+window.onkeyup=()=>move={x:0,y:0};
+reset();active=false;
+$('overlay').style.display='flex';
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
