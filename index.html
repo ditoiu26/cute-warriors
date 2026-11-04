@@ -4,200 +4,590 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Cute Warriors 4.2</title>
+<title>CUTE WARRIORS 2</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#160d29;color:white;font-family:Arial;overflow:hidden;touch-action:none}
-#game{height:100dvh;position:relative;background:linear-gradient(#24153e,#10091e)}
-#arena{position:absolute;inset:100px 0 130px;overflow:hidden;perspective:600px}
-#floor{position:absolute;width:150%;height:125%;left:-25%;top:8%;border-radius:50%;background:radial-gradient(ellipse,#9867ad,#50316e 65%,#211332);border:5px solid #d69aff;transform:rotateX(18deg);box-shadow:0 0 40px #b74dff}
-#floor:after{content:"";position:absolute;inset:12%;border:2px solid #e6c1ff;border-radius:50%}
-#world{position:absolute;inset:0}
-#hud{position:absolute;top:10px;left:8px;right:8px;display:flex;justify-content:space-between;gap:5px;z-index:5}
-.stat{background:#24143de8;border:1px solid #c68aff;border-radius:12px;padding:8px;font-size:12px}
-.bar{width:85px;height:7px;background:#57314f;border-radius:8px;overflow:hidden;margin-top:4px}
-.fill{height:100%;background:linear-gradient(90deg,#ff4fc2,#ffb5ed);width:100%}
-#message{position:absolute;top:78px;width:100%;text-align:center;color:#ffd9ff;font-weight:bold;font-size:13px;z-index:5}
-.character{position:absolute;transform:translate(-50%,-50%);width:110px;height:150px;z-index:2}
-.bunny{z-index:3}
-.name{text-align:center;font-size:10px;font-weight:bold;text-shadow:0 2px 5px #000;position:absolute;top:0;width:100%}
-.body{position:absolute;top:44px;left:37px;width:36px;height:52px;border-radius:16px 16px 12px 12px;background:linear-gradient(120deg,#ffb8eb,#db56bb);border:2px solid #9d3d92;z-index:3}
-.chest{position:absolute;top:54px;left:42px;width:27px;height:26px;border-radius:8px;background:linear-gradient(140deg,#d9a3ff,#7841bd);z-index:4;border:2px solid #f2c4ff}
-.gem{position:absolute;left:51px;top:60px;width:10px;height:10px;background:#ffe4a2;transform:rotate(45deg);z-index:5}
-.head{position:absolute;top:17px;left:29px;width:53px;height:48px;border-radius:48% 48% 45% 45%;background:linear-gradient(140deg,#ffd0ef,#ec79c9);border:2px solid #a94b98;z-index:5}
-.ear{position:absolute;top:-15px;width:15px;height:40px;border-radius:80% 80% 35% 35%;background:linear-gradient(#fa9fe0,#b15cce);border:2px solid #a94b98;transform-origin:bottom}
-.ear.left{left:7px;transform:rotate(-18deg)}
-.ear.right{right:7px;transform:rotate(18deg)}
-.eye{position:absolute;top:18px;width:6px;height:9px;border-radius:50%;background:#392044}
-.eye.left{left:13px}.eye.right{right:13px}
-.nose{position:absolute;left:23px;top:30px;width:7px;height:5px;border-radius:50%;background:#a94691}
-.arm{position:absolute;top:53px;width:15px;height:43px;border-radius:12px;background:linear-gradient(90deg,#ffb9e8,#dc66bf);border:2px solid #a94b98;transform-origin:top center;z-index:4}
-.arm.left{left:26px;transform:rotate(16deg)}
-.arm.right{left:69px;transform:rotate(-16deg)}
-.hand{position:absolute;bottom:-8px;left:-3px;width:17px;height:17px;border-radius:50%;background:#e9a0dc;border:2px solid #a94b98}
-.fingers{position:absolute;bottom:-9px;left:0;width:17px;height:7px;border-radius:50%;border-bottom:3px solid #a94b98}
-.leg{position:absolute;top:89px;width:17px;height:36px;border-radius:9px;background:linear-gradient(90deg,#9864d4,#6331a3);border:2px solid #542b87;transform-origin:top center;z-index:2}
-.leg.left{left:37px}.leg.right{left:58px}
-.boot{position:absolute;bottom:-5px;left:-4px;width:25px;height:13px;border-radius:8px;background:#ff8cda;border:2px solid #a94b98}
-.sword{position:absolute;top:58px;left:87px;width:8px;height:58px;border-radius:5px;background:linear-gradient(90deg,#fff,#d6a9ff,#a34cff);border:1px solid white;transform:rotate(-22deg);transform-origin:bottom;z-index:6;box-shadow:0 0 10px #e58aff}
-.sword:after{content:"";position:absolute;bottom:4px;left:-8px;width:23px;height:5px;background:#ffd0f5;border-radius:5px}
-.bunny.running .leg.left{animation:legs .23s infinite alternate}
-.bunny.running .leg.right{animation:legs .23s infinite alternate-reverse}
-.bunny.running .arm.left{animation:arms .23s infinite alternate}
-.bunny.running .arm.right{animation:arms .23s infinite alternate-reverse}
-.bunny.running .body{animation:bounce .23s infinite alternate}
-.bunny.running .head{animation:headMove .35s infinite alternate}
-.bunny.running .ear{animation:earMove .3s infinite alternate}
-.bunny.attacking .arm.right{animation:swing .22s ease-in-out 2}
-.bunny.attacking .sword{animation:sword .22s ease-in-out 2}
-@keyframes legs{to{transform:rotate(40deg)}}
-@keyframes arms{to{transform:rotate(-38deg)}}
-@keyframes bounce{to{transform:translateY(-6px)}}
-@keyframes headMove{to{transform:rotate(5deg)}}
-@keyframes earMove{to{transform:rotate(25deg)}}
-@keyframes swing{to{transform:rotate(-90deg)}}
-@keyframes sword{to{transform:rotate(70deg)}}
-.enemy .body{background:linear-gradient(#a68bff,#6635a7)}
-.enemy .head{background:linear-gradient(#bda3ff,#7551c2)}
-.enemy .arm{background:#9a75d8}
-.enemy .leg{background:#60449e}
-.enemy .ear{display:none}
-#bottom{position:absolute;bottom:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:7}
-#stick{width:105px;height:105px;border:3px solid #dca4ff;border-radius:50%;background:#ffffff25;position:relative;touch-action:none}
-#knob{position:absolute;width:42px;height:42px;border-radius:50%;background:#f0b0ff;left:29px;top:29px;box-shadow:0 0 15px #e879f9}
-.actions{display:flex;gap:9px}
-button{border:2px solid #fff8;color:white;font-weight:bold;background:linear-gradient(145deg,#f27bd6,#713ac0);border-radius:50%;width:67px;height:67px;font-size:12px;box-shadow:0 4px 15px #0007}
-button:active{transform:scale(.9)}
-#overlay{position:absolute;inset:0;background:#130b25ed;z-index:10;display:flex;align-items:center;justify-content:center;text-align:center;padding:25px}
-#card{width:100%;max-width:380px;background:#ffffff12;border:1px solid #d99aff;border-radius:25px;padding:25px}
-#card h1{color:#ff9de8;font-size:31px;text-shadow:0 0 15px #e879f9}
-#card button{width:auto;height:auto;border-radius:15px;padding:17px 30px;font-size:15px}
-.hidden{display:none!important}
+body{margin:0;overflow:hidden;background:#120b25;color:white;font-family:Arial,sans-serif;touch-action:none}
+canvas{display:block}
+#ui{position:fixed;inset:0;pointer-events:none}
+#menu{
+ position:absolute;inset:0;display:flex;align-items:center;
+ justify-content:center;text-align:center;padding:20px;
+ background:linear-gradient(135deg,#160c2ddd,#35144cbb,#160c2ddd);
+ pointer-events:auto
+}
+.logo{
+ font-size:clamp(35px,9vw,65px);font-weight:1000;
+ letter-spacing:2px;color:#ffb1ec;
+ text-shadow:0 0 12px #ed69d5,0 0 35px #a747ff;
+}
+.subtitle{color:#e3c4ff;letter-spacing:5px;font-size:12px;margin:12px}
+.card{
+ width:min(420px,100%);padding:30px 20px;
+ border:1px solid #d78cff;border-radius:25px;
+ background:linear-gradient(145deg,#392052ee,#170d2bee);
+ box-shadow:0 0 45px #a64cff55
+}
+.hero-icon{font-size:65px;margin-bottom:8px}
+button{
+ border:1px solid #f6d4ff;color:white;
+ background:linear-gradient(135deg,#ed78ca,#873cce);
+ border-radius:13px;padding:15px 20px;
+ font-weight:bold;font-size:14px;cursor:pointer;
+ box-shadow:0 0 15px #bd62e755
+}
+.menu-buttons{display:grid;gap:12px;margin-top:25px}
+button:active{transform:scale(.96)}
+#multiplayer{background:linear-gradient(135deg,#7045b9,#39215f)}
+.small{font-size:11px;color:#d4bde9;line-height:1.6}
+#hud{
+ display:none;position:absolute;top:12px;left:12px;right:12px;
+ justify-content:space-between;align-items:start
+}
+.panel{
+ background:#211333dd;border:1px solid #d38bff;
+ border-radius:12px;padding:10px;font-size:12px
+}
+#mission{
+ position:absolute;top:75px;left:50%;
+ transform:translateX(-50%);background:#211333dd;
+ border:1px solid #c888ef;padding:10px 14px;
+ border-radius:12px;font-size:12px;white-space:nowrap
+}
+#controls{
+ display:none;position:absolute;bottom:18px;left:15px;right:15px;
+ justify-content:space-between;align-items:end
+}
+#stick{
+ width:110px;height:110px;border-radius:50%;
+ border:3px solid #dfa5ff;background:#b76aff35;
+ position:relative;touch-action:none;pointer-events:auto
+}
+#knob{
+ position:absolute;width:42px;height:42px;
+ left:31px;top:31px;border-radius:50%;
+ background:linear-gradient(135deg,#ffb6eb,#9e53ec);
+ box-shadow:0 0 15px #ed8bff
+}
+.actions{display:flex;gap:8px;pointer-events:auto}
+.actions button{width:62px;height:62px;padding:5px;border-radius:50%;font-size:11px}
+#notice{
+ display:none;position:absolute;bottom:140px;left:50%;
+ transform:translateX(-50%);background:#251438dd;
+ padding:10px 14px;border-radius:12px;font-size:12px;
+ white-space:nowrap
+}
+#modal{
+ display:none;position:absolute;inset:0;align-items:center;
+ justify-content:center;background:#10091eee;
+ padding:20px;pointer-events:auto
+}
+#modal .card{max-width:360px}
 </style>
 </head>
 <body>
-<div id="game">
-<div id="hud">
-<div class="stat">❤️ <span id="life">100</span><div class="bar"><div class="fill" id="lifeBar"></div></div></div>
-<div class="stat">⭐ <span id="score">0</span></div>
-<div class="stat">👾 <span id="remaining">3</span></div>
+<div id="ui">
+
+ <div id="menu">
+  <div class="card">
+   <div class="hero-icon">💎</div>
+   <div class="logo">CUTE<br>WARRIORS 2</div>
+   <div class="subtitle">A NEW WORLD BEGINS</div>
+   <p style="color:#f4dafa">Explore. Fight. Discover.</p>
+   <div class="menu-buttons">
+    <button id="story">⚔️ &nbsp; STORY MODE</button>
+    <button id="multiplayer">🌐 &nbsp; MULTIPLAYER</button>
+   </div>
+   <p class="small">OPEN WORLD • FANTASY RPG • ADVENTURE</p>
+   <p class="small">VERSION 2.0</p>
+  </div>
+ </div>
+
+ <div id="hud">
+  <div class="panel">❤️ <span id="hp">100</span><br>⭐ <span id="score">0</span></div>
+  <div class="panel">CUTE WARRIORS 2<br>LEVEL 1</div>
+ </div>
+
+ <div id="mission">💎 Cristale: <span id="crystals">0 / 5</span></div>
+
+ <div id="controls">
+  <div id="stick"><div id="knob"></div></div>
+  <div class="actions">
+   <button id="jump">⬆️<br>JUMP</button>
+   <button id="attack">⚔️<br>ATTACK</button>
+   <button id="magic">🔥<br>MAGIC</button>
+  </div>
+ </div>
+
+ <div id="notice">Explorează Regatul Lumina!</div>
+
+ <div id="modal">
+  <div class="card">
+   <div style="font-size:55px">🌐</div>
+   <h2 style="color:#f6a9eb">MULTIPLAYER</h2>
+   <p>Pregătim lumea online în care vei putea explora și lupta împreună cu prietenii.</p>
+   <p class="small">Server multiplayer: următoarea etapă de dezvoltare.</p>
+   <button id="close">ÎNAPOI</button>
+  </div>
+ </div>
 </div>
-<div id="message">PINK SHADOW ARENA</div>
-<div id="arena">
-<div id="floor"></div>
-<div id="world">
-<div id="hero" class="character bunny">
-<div class="name">FLAME BUNNY</div>
-<div class="leg left"><div class="boot"></div></div>
-<div class="leg right"><div class="boot"></div></div>
-<div class="body"></div><div class="chest"></div><div class="gem"></div>
-<div class="arm left"><div class="hand"><div class="fingers"></div></div></div>
-<div class="arm right"><div class="hand"><div class="fingers"></div></div></div>
-<div class="head"><div class="ear left"></div><div class="ear right"></div><div class="eye left"></div><div class="eye right"></div><div class="nose"></div></div>
-<div class="sword"></div>
-</div>
-</div>
-</div>
-<div id="bottom">
-<div id="stick"><div id="knob"></div></div>
-<div class="actions"><button id="attack">⚔️<br>ATAC</button><button id="fire">🔥<br>FIRE</button></div>
-</div>
-<div id="overlay"><div id="card">
-<div style="font-size:65px">🐰</div>
-<h1>CUTE WARRIORS</h1>
-<h2>4.2 – FULL BODY</h2>
-<p>Flame Bunny intră în arenă!</p>
-<button id="start">START BATTLE ⚔️</button>
-</div></div>
-</div>
-<script>
-const $=id=>document.getElementById(id);
-const world=$("world"),hero=$("hero");
-let x=50,y=68,hp=100,score=0,enemies=[],dx=0,dy=0;
-let active=false,raf=0,last=0,attackLock=0;
-function createEnemy(i){
-let el=document.createElement("div");
-el.className="character enemy";
-el.innerHTML='<div class="name">SHADOW</div><div class="leg left"></div><div class="leg right"></div><div class="body"></div><div class="chest"></div><div class="arm left"><div class="hand"></div></div><div class="arm right"><div class="hand"></div></div><div class="head"><div class="eye left"></div><div class="eye right"></div></div>';
-world.appendChild(el);
-return {el,x:22+i*28,y:22,hp:3,hit:0,phase:i};
-}
-function spawn(){
-document.querySelectorAll(".enemy").forEach(e=>e.remove());
-enemies=[0,1,2].map(createEnemy);
-}
-function draw(){
-hero.style.left=x+"%";hero.style.top=y+"%";
-enemies.forEach(e=>{e.el.style.left=e.x+"%";e.el.style.top=e.y+"%"});
-$("life").textContent=hp;
-$("lifeBar").style.width=hp+"%";
-$("score").textContent=score;
-$("remaining").textContent=enemies.length;
-hero.classList.toggle("running",Math.abs(dx)+Math.abs(dy)>.1);
-}
-function attack(power){
-if(!active||attackLock>0)return;
-attackLock=.35;
-hero.classList.remove("attacking");void hero.offsetWidth;hero.classList.add("attacking");
-$("message").textContent=power===3?"🔥 PINK FIRE BLAST!":"⚔️ SWORD STRIKE!";
-let target=enemies.find(e=>Math.hypot(e.x-x,e.y-y)<(power===3?42:26));
-if(target){
-target.hp-=power;
-target.el.style.filter="brightness(2)";
-setTimeout(()=>{if(target.el)target.el.style.filter=""},140);
-if(target.hp<=0){
-target.el.remove();enemies=enemies.filter(e=>e!==target);
-score+=100;
-if(!enemies.length)finish(true);
-}
-}
-draw();
-}
-function finish(win){
-active=false;cancelAnimationFrame(raf);
-$("overlay").classList.remove("hidden");
-$("card").innerHTML='<div style="font-size:65px">'+(win?"🏆":"💜")+'</div><h1>'+(win?"VICTORIE!":"ÎNCEARCĂ DIN NOU")+'</h1><p>Scor: '+score+'</p><button id="start">JOACĂ DIN NOU</button>';
-$("start").onclick=start;
-}
-function loop(t){
-if(!active)return;
-let dt=Math.min((t-last)/16.67,2)||1;last=t;
-x=Math.max(8,Math.min(92,x+dx*.48*dt));
-y=Math.max(12,Math.min(88,y+dy*.48*dt));
-attackLock=Math.max(0,attackLock-.016*dt);
-enemies.forEach(e=>{
-let vx=x-e.x,vy=y-e.y,d=Math.hypot(vx,vy)||1;
-if(d>12){e.x+=vx/d*.13*dt;e.y+=vy/d*.13*dt}
-if(d<12&&t-e.hit>1000){
-hp=Math.max(0,hp-6);e.hit=t;
-if(hp<=0)finish(false);
-}
+
+<script type="module">
+import * as THREE from
+'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
+
+// SCENE
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x9b82c9);
+scene.fog=new THREE.Fog(0x9b82c9,30,100);
+
+const camera=new THREE.PerspectiveCamera(
+ 65,innerWidth/innerHeight,.1,200
+);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.shadowMap.enabled=true;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+document.body.appendChild(renderer.domElement);
+
+// LIGHTS
+scene.add(new THREE.HemisphereLight(0xffe6ff,0x42315f,2));
+
+const sun=new THREE.DirectionalLight(0xffe4f6,3);
+sun.position.set(-12,25,12);
+sun.castShadow=true;
+scene.add(sun);
+
+const pinkLight=new THREE.PointLight(0xff62da,35,35);
+pinkLight.position.set(5,6,-8);
+scene.add(pinkLight);
+
+// MATERIALS
+const mat=(color,metal=0,rough=.45)=>new THREE.MeshStandardMaterial({
+ color,metalness:metal,roughness:rough
 });
-draw();
-if(active)raf=requestAnimationFrame(loop);
+
+const pink=mat(0xf18bd5,.2);
+const purple=mat(0x813dbd,.3);
+const gold=mat(0xffd77e,.6);
+const white=mat(0xffeaff);
+const green=mat(0x416b58);
+const dark=mat(0x28162f);
+
+// WORLD
+const ground=new THREE.Mesh(
+ new THREE.PlaneGeometry(150,150),
+ mat(0x657c76)
+);
+ground.rotation.x=-Math.PI/2;
+ground.position.y=-.1;
+ground.receiveShadow=true;
+scene.add(ground);
+
+const platform=new THREE.Mesh(
+ new THREE.CylinderGeometry(28,30,.5,64),
+ mat(0x705781)
+);
+platform.position.y=-.3;
+scene.add(platform);
+
+// TREES
+function tree(x,z){
+ const g=new THREE.Group();
+ const trunk=new THREE.Mesh(
+  new THREE.CylinderGeometry(.2,.35,2,8),
+  mat(0x79513e)
+ );
+ trunk.position.y=1;
+ g.add(trunk);
+
+ const leaves=new THREE.Mesh(
+  new THREE.IcosahedronGeometry(1.6,1),
+  green
+ );
+ leaves.position.y=2.8;
+ leaves.castShadow=true;
+ g.add(leaves);
+ g.position.set(x,0,z);
+ scene.add(g);
 }
-function start(){
-$("overlay").classList.add("hidden");
-x=50;y=68;hp=100;score=0;attackLock=0;
-spawn();draw();active=true;last=performance.now();
-cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
-$("message").textContent="ÎNVINGE TOȚI ADVERSARII!";
+
+for(let i=0;i<32;i++){
+ const a=i*Math.PI*2/32;
+ tree(Math.sin(a)*35,Math.cos(a)*35);
 }
-$("start").onclick=start;
-$("attack").onclick=()=>attack(1);
-$("fire").onclick=()=>attack(3);
-const stick=$("stick"),knob=$("knob");
+
+// MOUNTAINS
+for(let i=0;i<12;i++){
+ const a=i*Math.PI*2/12;
+ const mountain=new THREE.Mesh(
+  new THREE.ConeGeometry(5,11,5),
+  mat(0x786a9f)
+ );
+ mountain.position.set(Math.sin(a)*49,5,Math.cos(a)*49);
+ scene.add(mountain);
+}
+
+// CRYSTALS
+const crystals=[];
+function createCrystal(x,z){
+ const g=new THREE.Group();
+ const crystal=new THREE.Mesh(
+  new THREE.OctahedronGeometry(.7,0),
+  new THREE.MeshStandardMaterial({
+   color:0xf29aff,
+   emissive:0x9d35c8,
+   emissiveIntensity:1.5,
+   metalness:.4
+  })
+ );
+ crystal.scale.y=1.8;
+ crystal.castShadow=true;
+ g.add(crystal);
+
+ const light=new THREE.PointLight(0xdf79ff,2,5);
+ g.add(light);
+ g.position.set(x,1,z);
+ scene.add(g);
+ crystals.push(g);
+}
+
+[[-8,-12],[9,-9],[-12,5],[11,8],[0,-20]].forEach(
+ p=>createCrystal(p[0],p[1])
+);
+
+// FLAME BUNNY
+const hero=new THREE.Group();
+scene.add(hero);
+
+function part(parent,geo,material,x,y,z){
+ const m=new THREE.Mesh(geo,material);
+ m.position.set(x,y,z);
+ m.castShadow=true;
+ m.receiveShadow=true;
+ parent.add(m);
+ return m;
+}
+
+const torso=part(
+ hero,new THREE.CapsuleGeometry(.4,.65,6,16),
+ pink,0,1.45,0
+);
+
+part(hero,new THREE.SphereGeometry(.42,20,16),
+ purple,0,1.65,.1);
+
+part(hero,new THREE.BoxGeometry(.75,.15,.5),
+ gold,0,1.03,0);
+
+// HEAD
+const head=new THREE.Group();
+head.position.set(0,2.35,0);
+hero.add(head);
+
+part(head,new THREE.SphereGeometry(.58,24,20),
+ pink,0,0,0);
+
+part(head,new THREE.SphereGeometry(.1,12,12),
+ dark,-.2,.08,.5);
+part(head,new THREE.SphereGeometry(.1,12,12),
+ dark,.2,.08,.5);
+
+part(head,new THREE.SphereGeometry(.065,12,12),
+ white,-.23,.12,.57);
+part(head,new THREE.SphereGeometry(.065,12,12),
+ white,.17,.12,.57);
+
+part(head,new THREE.SphereGeometry(.07,12,12),
+ purple,0,-.15,.53);
+
+// EARS
+const ears=[];
+for(const side of [-1,1]){
+ const ear=new THREE.Group();
+ ear.position.set(side*.3,.38,0);
+ head.add(ear);
+
+ part(ear,new THREE.CapsuleGeometry(.14,.72,5,12),
+ side===-1?pink:purple,0,.4,0);
+ ears.push(ear);
+}
+
+// ARMS
+const arms=[];
+for(const side of [-1,1]){
+ const arm=new THREE.Group();
+ arm.position.set(side*.48,1.9,0);
+ hero.add(arm);
+
+ part(arm,new THREE.CapsuleGeometry(.16,.48,5,12),
+ pink,0,-.3,0);
+
+ part(arm,new THREE.SphereGeometry(.18,12,12),
+ white,0,-.65,.08);
+ arms.push(arm);
+}
+
+// LEGS
+const legs=[];
+for(const side of [-1,1]){
+ const leg=new THREE.Group();
+ leg.position.set(side*.24,.85,0);
+ hero.add(leg);
+
+ part(leg,new THREE.CapsuleGeometry(.18,.45,5,12),
+ purple,0,-.25,0);
+
+ part(leg,new THREE.SphereGeometry(.23,16,12),
+ pink,0,-.58,.12);
+ legs.push(leg);
+}
+
+// SWORD
+const sword=new THREE.Group();
+arms[1].add(sword);
+part(sword,new THREE.BoxGeometry(.1,1,.08),
+ white,0,-.9,.1);
+part(sword,new THREE.BoxGeometry(.4,.1,.12),
+ gold,0,-1.4,.1);
+
+// PORTAL
+const portal=new THREE.Group();
+const ring=new THREE.Mesh(
+ new THREE.TorusGeometry(2,.16,12,48),
+ mat(0xd88bff,.6)
+);
+portal.add(ring);
+const portalLight=new THREE.PointLight(0xc45aff,5,12);
+portal.add(portalLight);
+portal.position.set(0,2,-29);
+scene.add(portal);
+
+// GAME STATE
+let active=false;
+let dx=0,dy=0;
+let jumping=false,jumpV=0;
+let attackTime=0;
+let score=0,collected=0;
+const clock=new THREE.Clock();
+
+// CAMERA
+let cameraAngle=0;
+let dragging=false,lastX=0,lastY=0;
+
+renderer.domElement.addEventListener('pointerdown',e=>{
+ if(!active)return;
+ dragging=true;
+ lastX=e.clientX;
+ lastY=e.clientY;
+});
+window.addEventListener('pointerup',()=>dragging=false);
+window.addEventListener('pointermove',e=>{
+ if(!dragging)return;
+ cameraAngle-=(e.clientX-lastX)*.006;
+ lastX=e.clientX;
+ lastY=e.clientY;
+});
+
+// JOYSTICK
+const stick=document.getElementById('stick');
+const knob=document.getElementById('knob');
 let pointer=null;
-stick.onpointerdown=e=>{pointer=e.pointerId;stick.setPointerCapture(pointer);move(e)};
-stick.onpointermove=e=>{if(pointer===e.pointerId)move(e)};
-function move(e){
-let r=stick.getBoundingClientRect(),a=e.clientX-r.left-r.width/2,b=e.clientY-r.top-r.height/2,d=Math.max(1,Math.hypot(a,b)),m=Math.min(36,d);
-dx=a/d*m/36;dy=b/d*m/36;
-knob.style.left=(29+dx*28)+"px";knob.style.top=(29+dy*28)+"px";
+
+function joystick(e){
+ const r=stick.getBoundingClientRect();
+ let x=e.clientX-r.left-r.width/2;
+ let y=e.clientY-r.top-r.height/2;
+ const d=Math.max(1,Math.hypot(x,y));
+ const m=Math.min(36,d);
+ dx=x/d*m/36;
+ dy=y/d*m/36;
+ knob.style.left=(31+dx*30)+'px';
+ knob.style.top=(31+dy*30)+'px';
 }
-function release(){pointer=null;dx=dy=0;knob.style.left="29px";knob.style.top="29px"}
-stick.onpointerup=release;stick.onpointercancel=release;
-spawn();draw();
+
+stick.onpointerdown=e=>{
+ pointer=e.pointerId;
+ stick.setPointerCapture(pointer);
+ joystick(e);
+};
+stick.onpointermove=e=>{
+ if(pointer===e.pointerId)joystick(e);
+};
+function release(){
+ pointer=null;
+ dx=dy=0;
+ knob.style.left='31px';
+ knob.style.top='31px';
+}
+stick.onpointerup=release;
+stick.onpointercancel=release;
+
+// ACTIONS
+document.getElementById('jump').onclick=()=>{
+ if(active&&!jumping){
+  jumping=true;
+  jumpV=8;
+ }
+};
+
+document.getElementById('attack').onclick=()=>{
+ if(!active)return;
+ attackTime=.45;
+ document.getElementById('notice').textContent='⚔️ SWORD ATTACK!';
+};
+
+document.getElementById('magic').onclick=()=>{
+ if(!active)return;
+ document.getElementById('notice').textContent='🔥 PINK FIRE BLAST!';
+ const effect=new THREE.PointLight(0xff54d9,12,13);
+ effect.position.copy(hero.position);
+ effect.position.y+=2;
+ scene.add(effect);
+ setTimeout(()=>scene.remove(effect),450);
+};
+
+// START STORY
+function startGame(){
+ active=true;
+ hero.position.set(0,0,4);
+ score=0;
+ collected=0;
+
+ crystals.forEach(c=>{
+  c.visible=true;
+  c.userData.gone=false;
+ });
+
+ document.getElementById('score').textContent='0';
+ document.getElementById('crystals').textContent='0 / 5';
+ document.getElementById('menu').style.display='none';
+ document.getElementById('hud').style.display='flex';
+ document.getElementById('controls').style.display='flex';
+ document.getElementById('notice').style.display='block';
+ document.getElementById('notice').textContent='Găsește cele cinci cristale!';
+ clock.start();
+}
+
+document.getElementById('story').onclick=startGame;
+
+document.getElementById('multiplayer').onclick=()=>{
+ document.getElementById('modal').style.display='flex';
+};
+document.getElementById('close').onclick=()=>{
+ document.getElementById('modal').style.display='none';
+};
+
+// UPDATE
+function update(dt){
+ const t=clock.elapsedTime;
+
+ const forward=new THREE.Vector3(
+  -Math.sin(cameraAngle),0,-Math.cos(cameraAngle)
+ );
+ const side=new THREE.Vector3(
+  Math.cos(cameraAngle),0,-Math.sin(cameraAngle)
+ );
+
+ const direction=forward.clone().multiplyScalar(-dy)
+ .add(side.clone().multiplyScalar(dx));
+
+ const moving=direction.length()>.1;
+
+ if(moving){
+  direction.normalize();
+  hero.position.addScaledVector(direction,dt*6);
+  hero.rotation.y=Math.atan2(direction.x,direction.z);
+ }
+
+ hero.position.x=THREE.MathUtils.clamp(hero.position.x,-23,23);
+ hero.position.z=THREE.MathUtils.clamp(hero.position.z,-30,23);
+
+ const walk=moving?Math.sin(t*11):0;
+ legs[0].rotation.x=walk*.7;
+ legs[1].rotation.x=-walk*.7;
+ arms[0].rotation.x=-walk*.6;
+ arms[1].rotation.x=walk*.6;
+
+ torso.position.y=1.45+(moving?Math.abs(walk)*.08:Math.sin(t*2)*.025);
+ head.rotation.z=Math.sin(t*2)*.025;
+ ears[0].rotation.z=Math.sin(t*4)*.1;
+ ears[1].rotation.z=-Math.sin(t*4)*.1;
+
+ if(attackTime>0){
+  attackTime-=dt;
+  arms[1].rotation.x=-2;
+ }
+
+ if(jumping){
+  jumpV-=18*dt;
+  hero.position.y+=jumpV*dt;
+  if(hero.position.y<=0){
+   hero.position.y=0;
+   jumping=false;
+  }
+ }
+
+ // Camera behind hero
+ const offset=new THREE.Vector3(
+  Math.sin(cameraAngle)*7,
+  4.2,
+  Math.cos(cameraAngle)*7
+ );
+
+ const target=hero.position.clone().add(offset);
+ camera.position.lerp(target,.1);
+ camera.lookAt(hero.position.x,hero.position.y+1.8,hero.position.z);
+
+ // Crystal collection
+ crystals.forEach(c=>{
+  if(!c.visible)return;
+  c.rotation.y+=dt;
+  c.position.y=1+Math.sin(t*2)*.15;
+
+  if(c.position.distanceTo(hero.position)<1.8){
+   c.visible=false;
+   collected++;
+   score+=100;
+   document.getElementById('score').textContent=score;
+   document.getElementById('crystals').textContent=collected+' / 5';
+   document.getElementById('notice').textContent='💎 CRISTAL COLECTAT! +100';
+
+   if(collected===5){
+    document.getElementById('notice').textContent='🏆 AI GĂSIT TOATE CRISTALELE!';
+   }
+  }
+ });
+
+ portal.rotation.y+=dt*.4;
+}
+
+// ANIMATION
+function animate(){
+ requestAnimationFrame(animate);
+ const dt=Math.min(clock.getDelta(),.04);
+
+ if(active)update(dt);
+ else{
+  const t=performance.now()*.001;
+  camera.position.set(Math.sin(t*.15)*12,7,12);
+  camera.lookAt(0,1,0);
+  portal.rotation.y+=dt*.2;
+ }
+
+ renderer.render(scene,camera);
+}
+animate();
+
+// RESIZE
+window.addEventListener('resize',()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
 </script>
 </body>
 </html>
