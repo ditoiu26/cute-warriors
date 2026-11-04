@@ -7,150 +7,123 @@
 <title>Cute Warriors</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#17152d;color:white;font-family:Arial;text-align:center}
-h1{color:#ffe17b}
-canvas{width:100%;max-width:720px;background:#28564c;display:block;margin:auto;touch-action:none}
-.stats{display:flex;justify-content:space-around;padding:12px;font-size:19px}
-.controls{display:flex;justify-content:space-around;align-items:center;padding:18px}
-button{background:#7652c8;color:white;border:0;border-radius:15px;padding:17px;font-weight:bold;font-size:17px}
-#stick{width:125px;height:125px;border-radius:50%;background:#35304e;position:relative;touch-action:none}
-#nub{position:absolute;width:48px;height:48px;background:#b69aff;border-radius:50%;left:38px;top:38px}
-#overlay{position:fixed;inset:0;background:#101025ee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px}
+body{margin:0;background:#180d32;color:white;font-family:Arial;overflow:hidden;touch-action:none}
+#game{height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:15px;background:radial-gradient(circle at 50% 45%,#643b91,#180d32 75%)}
+h1{margin:5px;color:#ffb6ef;text-shadow:0 0 15px #e879f9}
+#stats{width:100%;max-width:500px;display:flex;justify-content:space-between;gap:10px}
+.panel{background:#ffffff20;border:1px solid #ffffff40;border-radius:15px;padding:10px}
+#arena{width:min(90vw,420px);height:min(55vh,420px);position:relative;border:4px solid #dca5ff;border-radius:50%;background:radial-gradient(ellipse,#c48be7,#633d91 70%,#32174d);box-shadow:0 0 30px #d946ef;overflow:hidden}
+.fighter{position:absolute;transform:translate(-50%,-50%);font-size:48px;filter:drop-shadow(0 5px 5px #250d37);user-select:none}
+#hero{font-size:62px;z-index:3}
+.enemy{font-size:46px}
+#controls{width:100%;max-width:500px;display:flex;justify-content:space-between;align-items:center}
+#stick{width:115px;height:115px;border-radius:50%;background:#ffffff30;border:3px solid #e9b5ff;position:relative}
+#knob{width:48px;height:48px;border-radius:50%;background:#f5b4ff;position:absolute;left:31px;top:31px}
+button{border:0;border-radius:50%;width:78px;height:78px;background:linear-gradient(140deg,#ff9ce8,#9c65ef);color:white;font-weight:bold;font-size:14px;box-shadow:0 4px 15px #e879f9}
+button:active{transform:scale(.9)}
+#message{font-weight:bold;color:#ffe0ff;text-align:center;min-height:25px}
+#restart{width:auto;height:auto;border-radius:15px;padding:12px 20px}
 </style>
 </head>
 <body>
-<h1>🔥 CUTE WARRIORS ⚔️</h1>
-<div class="stats">
-<span>❤️ <b id="hp">100</b></span>
-<span>⭐ <b id="score">0</b></span>
+<div id="game">
+<h1>🐰 CUTE WARRIORS</h1>
+<div id="stats">
+<div class="panel">❤️ Viață: <span id="hp">100</span></div>
+<div class="panel">⭐ Scor: <span id="score">0</span></div>
+<div class="panel">👾 Inamici: <span id="left">3</span></div>
 </div>
-<canvas id="game" width="720" height="480"></canvas>
-<div class="controls">
-<div id="stick"><div id="nub"></div></div>
-<div>
-<button id="hit">⚔️ ATAC</button>
-<br><br>
-<button id="dash">💨 DASH</button>
+<div id="arena">
+<div id="hero" class="fighter">🐰</div>
+<div id="enemies"></div>
 </div>
+<div id="message">Flame Bunny, pregătește-te de luptă!</div>
+<div id="controls">
+<div id="stick"><div id="knob"></div></div>
+<button id="attack">⚔️<br>ATAC</button>
+<button id="special">🔥<br>SPECIAL</button>
 </div>
-<div id="overlay">
-<h1>CUTE WARRIORS</h1>
-<p>Apără Crystal Island!</p>
-<button id="start">START BATTLE</button>
+<button id="restart">REÎNCEPE LUPTA</button>
 </div>
 <script>
-const c=document.getElementById('game');
-const ctx=c.getContext('2d');
-const $=id=>document.getElementById(id);
-let p,enemies,hp,score,active,move={x:0,y:0},attack=0,dash=0,spawn=0,last=0;
-function reset(){
-p={x:360,y:350};enemies=[];hp=100;score=0;
-active=true;spawn=0;update();
-$('overlay').style.display='none';
-}
-function update(){
-$('hp').textContent=Math.ceil(hp);
-$('score').textContent=score;
-}
-function createEnemy(){
-let a=Math.random()*Math.PI*2;
-enemies.push({x:360+Math.cos(a)*340,y:240+Math.sin(a)*220,hp:2});
-}
-function hit(){
-if(!active)return;
-attack=performance.now()+200;
-for(let i=enemies.length-1;i>=0;i--){
-let e=enemies[i];
-if(Math.hypot(e.x-p.x,e.y-p.y)<75){
-e.hp--;
-if(e.hp<=0){enemies.splice(i,1);score+=100;update();}
-}
+const arena=document.querySelector("#arena");
+const hero=document.querySelector("#hero");
+const enemiesBox=document.querySelector("#enemies");
+const hpText=document.querySelector("#hp");
+const scoreText=document.querySelector("#score");
+const leftText=document.querySelector("#left");
+const message=document.querySelector("#message");
+const knob=document.querySelector("#knob");
+let x=50,y=65,hp=100,score=0,alive=true;
+let enemies=[],dx=0,dy=0,lastHit=0;
+function spawn(){
+enemiesBox.innerHTML="";
+enemies=[];
+for(let i=0;i<3;i++){
+let el=document.createElement("div");
+el.className="fighter enemy";
+el.textContent=["👾","🐲","👻"][i];
+enemiesBox.appendChild(el);
+enemies.push({el,x:20+i*30,y:22,hp:2});
 }
 }
 function draw(){
-ctx.clearRect(0,0,720,480);
-ctx.fillStyle='#28584b';ctx.fillRect(0,0,720,480);
-for(let y=0;y<480;y+=40)for(let x=0;x<720;x+=40){
-ctx.fillStyle=(x+y)%80?'#306052':'#285448';
-ctx.fillRect(x,y,38,38);
+hero.style.left=x+"%";hero.style.top=y+"%";
+enemies.forEach(e=>{e.el.style.left=e.x+"%";e.el.style.top=e.y+"%"});
 }
-for(let i=0;i<7;i++){
-ctx.fillStyle='#64dce0';ctx.beginPath();
-ctx.arc(60+i*100,90+(i%2)*280,12,0,Math.PI*2);ctx.fill();
-}
+function update(){
+if(!alive)return;
+x=Math.max(9,Math.min(91,x+dx*.45));
+y=Math.max(12,Math.min(88,y+dy*.45));
 enemies.forEach(e=>{
-ctx.fillStyle='#a849c4';ctx.beginPath();
-ctx.arc(e.x,e.y,17,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='white';ctx.beginPath();
-ctx.arc(e.x-5,e.y-4,3,0,Math.PI*2);ctx.arc(e.x+5,e.y-4,3,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#ff7cae';ctx.fillRect(e.x-12,e.y-25,24,4);
+let vx=x-e.x,vy=y-e.y,d=Math.hypot(vx,vy);
+if(d>12){e.x+=vx/d*.12;e.y+=vy/d*.12}
+if(d<13&&Date.now()-lastHit>900){
+hp=Math.max(0,hp-5);hpText.textContent=hp;lastHit=Date.now();
+if(hp===0)end(false);
+}
 });
-ctx.fillStyle='#f47b37';ctx.beginPath();
-ctx.arc(p.x,p.y,19,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#ffc16a';ctx.beginPath();
-ctx.arc(p.x,p.y-7,12,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#222';ctx.beginPath();
-ctx.arc(p.x-5,p.y-8,2,0,Math.PI*2);ctx.arc(p.x+5,p.y-8,2,0,Math.PI*2);ctx.fill();
-ctx.strokeStyle='#ffe36b';ctx.lineWidth=5;
-ctx.beginPath();ctx.moveTo(p.x+12,p.y);ctx.lineTo(p.x+28,p.y-20);ctx.stroke();
-if(performance.now()<attack){
-ctx.strokeStyle='#fff2a0';ctx.lineWidth=7;
-ctx.beginPath();ctx.arc(p.x,p.y,50,-1,1);ctx.stroke();
+draw();requestAnimationFrame(update);
 }
+function attack(power){
+if(!alive)return;
+let target=enemies.find(e=>Math.hypot(e.x-x,e.y-y)<35);
+if(target){
+target.hp-=power;
+message.textContent="✨ Pink Fire Blast!";
+if(target.hp<=0){
+target.el.remove();enemies=enemies.filter(e=>e!==target);
+score+=100;scoreText.textContent=score;leftText.textContent=enemies.length;
+if(!enemies.length)end(true);
 }
-function finish(){
-active=false;
-$('overlay').style.display='flex';
-$('overlay').innerHTML='<h1>GAME OVER</h1><p>Scorul tău: '+score+'</p><button onclick="reset()">JOACĂ DIN NOU</button>';
+}else message.textContent="Apropie-te de un adversar!";
 }
-function loop(t){
-let dt=Math.min((t-last)/1000,.04)||0;last=t;
-if(active){
-let speed=190*(t<dash?2.5:1);
-let n=Math.hypot(move.x,move.y)||1;
-p.x=Math.max(20,Math.min(700,p.x+move.x/n*speed*dt));
-p.y=Math.max(20,Math.min(460,p.y+move.y/n*speed*dt));
-spawn-=dt;
-if(spawn<=0&&enemies.length<7){createEnemy();spawn=1.5;}
-for(let e of enemies){
-let dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
-e.x+=dx/d*65*dt;e.y+=dy/d*65*dt;
-if(d<34&&t>dash){hp-=20*dt;update();}
+function end(win){
+alive=false;dx=dy=0;
+message.textContent=win?"🏆 VICTORIE! Flame Bunny a câștigat!":"💜 Ai pierdut! Încearcă din nou!";
 }
-if(hp<=0)finish();
-}
-draw();requestAnimationFrame(loop);
-}
-$('start').onclick=reset;
-$('hit').onclick=hit;
-$('dash').onclick=()=>{dash=performance.now()+400;};
-const stick=$('stick'),nub=$('nub');
-function joystick(e){
-let r=stick.getBoundingClientRect();
-let x=e.clientX-r.left-r.width/2;
-let y=e.clientY-r.top-r.height/2;
-let d=Math.hypot(x,y),max=42;
-if(d>max){x=x/d*max;y=y/d*max;}
-nub.style.left=(38+x)+'px';nub.style.top=(38+y)+'px';
-move={x:x/max,y:y/max};
-}
-stick.onpointerdown=e=>{stick.setPointerCapture(e.pointerId);joystick(e)};
-stick.onpointermove=e=>{if(e.buttons)joystick(e)};
-stick.onpointerup=stick.onpointercancel=()=>{
-move={x:0,y:0};nub.style.left='38px';nub.style.top='38px';
+document.querySelector("#attack").onclick=()=>attack(1);
+document.querySelector("#special").onclick=()=>attack(2);
+document.querySelector("#restart").onclick=()=>{
+x=50;y=65;hp=100;score=0;alive=true;
+hpText.textContent=hp;scoreText.textContent=score;leftText.textContent=3;
+message.textContent="Flame Bunny, pregătește-te de luptă!";
+spawn();draw();requestAnimationFrame(update);
 };
-window.onkeydown=e=>{
-if(e.key==='ArrowUp'||e.key==='w')move.y=-1;
-if(e.key==='ArrowDown'||e.key==='s')move.y=1;
-if(e.key==='ArrowLeft'||e.key==='a')move.x=-1;
-if(e.key==='ArrowRight'||e.key==='d')move.x=1;
-if(e.code==='Space')hit();
-if(e.key==='Shift')dash=performance.now()+400;
-};
-window.onkeyup=()=>move={x:0,y:0};
-reset();active=false;
-$('overlay').style.display='flex';
-requestAnimationFrame(loop);
+let active=false;
+const stick=document.querySelector("#stick");
+stick.addEventListener("pointerdown",e=>{active=true;stick.setPointerCapture(e.pointerId);moveStick(e)});
+stick.addEventListener("pointermove",e=>{if(active)moveStick(e)});
+function moveStick(e){
+let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+let a=Math.atan2(e.clientY-cy,e.clientX-cx),d=Math.min(35,Math.hypot(e.clientX-cx,e.clientY-cy));
+dx=Math.cos(a)*d/35;dy=Math.sin(a)*d/35;
+knob.style.left=(33+dx*28)+"px";knob.style.top=(33+dy*28)+"px";
+}
+function release(){active=false;dx=dy=0;knob.style.left="31px";knob.style.top="31px"}
+stick.addEventListener("pointerup",release);
+stick.addEventListener("pointercancel",release);
+spawn();draw();requestAnimationFrame(update);
 </script>
 </body>
 </html>
