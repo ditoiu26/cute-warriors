@@ -4,126 +4,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Cute Warriors</title>
+<title>Cute Warriors 3.0</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#180d32;color:white;font-family:Arial;overflow:hidden;touch-action:none}
-#game{height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:15px;background:radial-gradient(circle at 50% 45%,#643b91,#180d32 75%)}
-h1{margin:5px;color:#ffb6ef;text-shadow:0 0 15px #e879f9}
-#stats{width:100%;max-width:500px;display:flex;justify-content:space-between;gap:10px}
-.panel{background:#ffffff20;border:1px solid #ffffff40;border-radius:15px;padding:10px}
-#arena{width:min(90vw,420px);height:min(55vh,420px);position:relative;border:4px solid #dca5ff;border-radius:50%;background:radial-gradient(ellipse,#c48be7,#633d91 70%,#32174d);box-shadow:0 0 30px #d946ef;overflow:hidden}
-.fighter{position:absolute;transform:translate(-50%,-50%);font-size:48px;filter:drop-shadow(0 5px 5px #250d37);user-select:none}
-#hero{font-size:62px;z-index:3}
-.enemy{font-size:46px}
-#controls{width:100%;max-width:500px;display:flex;justify-content:space-between;align-items:center}
-#stick{width:115px;height:115px;border-radius:50%;background:#ffffff30;border:3px solid #e9b5ff;position:relative}
-#knob{width:48px;height:48px;border-radius:50%;background:#f5b4ff;position:absolute;left:31px;top:31px}
-button{border:0;border-radius:50%;width:78px;height:78px;background:linear-gradient(140deg,#ff9ce8,#9c65ef);color:white;font-weight:bold;font-size:14px;box-shadow:0 4px 15px #e879f9}
+body{margin:0;background:#100a20;color:white;font-family:Arial;overflow:hidden;touch-action:none}
+#game{height:100dvh;position:relative;overflow:hidden;background:linear-gradient(#251442,#100a20)}
+header{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:5;gap:8px}
+.stat{background:#25143de8;border:1px solid #bd83ed;border-radius:13px;padding:9px;font-size:13px}
+#arena{position:absolute;inset:100px 0 125px;overflow:hidden;perspective:700px}
+#floor{position:absolute;width:150%;height:125%;left:-25%;top:5%;border-radius:50%;background:
+radial-gradient(ellipse,#67458d 0%,#392353 55%,#211332 75%);
+border:5px solid #bd83ed;box-shadow:0 0 45px #c34dff;
+transform:rotateX(18deg)}
+#floor:after{content:"";position:absolute;inset:10%;border:2px solid #dba4ff;border-radius:50%;opacity:.4}
+#world{position:absolute;inset:0}
+.character{position:absolute;transform:translate(-50%,-50%);text-align:center;filter:drop-shadow(0 8px 5px #10051d);user-select:none}
+.hero{font-size:65px;z-index:3}
+.enemy{font-size:48px;z-index:2}
+.shadow{height:10px;width:42px;background:#160d29aa;border-radius:50%;margin:auto;margin-top:-8px}
+.hpbar{height:6px;width:48px;background:#471b46;border-radius:8px;margin:auto;margin-bottom:3px;overflow:hidden}
+.hpbar span{display:block;height:100%;background:#ff70cc}
+.name{font-size:10px;font-weight:bold;text-shadow:0 2px 4px black}
+#effects{position:absolute;inset:0;pointer-events:none;z-index:4}
+.fx{position:absolute;font-size:40px;animation:boom .55s forwards}
+@keyframes boom{from{transform:scale(.3);opacity:1}to{transform:scale(2);opacity:0}}
+#bottom{position:absolute;bottom:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:6}
+#stick{width:110px;height:110px;border:3px solid #dca4ff;border-radius:50%;background:#ffffff20;position:relative;touch-action:none}
+#knob{position:absolute;width:44px;height:44px;border-radius:50%;background:#ed9fff;left:30px;top:30px;box-shadow:0 0 15px #f09aff}
+.actions{display:flex;gap:9px}
+button{border:2px solid #f6c5ff;color:white;font-weight:bold;background:linear-gradient(145deg,#ee73cf,#7938bb);border-radius:50%;width:70px;height:70px;font-size:13px;box-shadow:0 4px 15px #8f3cba}
 button:active{transform:scale(.9)}
-#message{font-weight:bold;color:#ffe0ff;text-align:center;min-height:25px}
-#restart{width:auto;height:auto;border-radius:15px;padding:12px 20px}
+#message{position:absolute;top:76px;left:0;right:0;text-align:center;font-size:13px;color:#ffd8ff;z-index:5}
+#overlay{position:absolute;inset:0;background:#130b25ed;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px}
+#overlay h1{color:#ff9de8;font-size:35px;text-shadow:0 0 20px #df58ff}
+#overlay p{line-height:1.6;color:#ead9ff}
+#overlay button{width:auto;height:auto;border-radius:18px;padding:16px 30px;font-size:16px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 <div id="game">
-<h1>🐰 CUTE WARRIORS</h1>
-<div id="stats">
-<div class="panel">❤️ Viață: <span id="hp">100</span></div>
-<div class="panel">⭐ Scor: <span id="score">0</span></div>
-<div class="panel">👾 Inamici: <span id="left">3</span></div>
-</div>
+<header>
+<div class="stat">❤️ <span id="life">100</span></div>
+<div class="stat">⭐ <span id="score">0</span></div>
+<div class="stat">👾 <span id="remaining">3</span></div>
+<div class="stat">⏱ <span id="time">90</span>s</div>
+</header>
+<div id="message">FLAME BUNNY – PINK SHADOW</div>
 <div id="arena">
-<div id="hero" class="fighter">🐰</div>
-<div id="enemies"></div>
+<div id="floor"></div>
+<div id="world">
+<div id="hero" class="character hero">
+<div class="hpbar"><span id="heroBar"></span></div>
+<div class="name">FLAME BUNNY</div>🐰
+<div class="shadow"></div>
 </div>
-<div id="message">Flame Bunny, pregătește-te de luptă!</div>
-<div id="controls">
+</div>
+<div id="effects"></div>
+</div>
+<div id="bottom">
 <div id="stick"><div id="knob"></div></div>
-<button id="attack">⚔️<br>ATAC</button>
-<button id="special">🔥<br>SPECIAL</button>
+<div class="actions">
+<button id="hit">⚔️<br>ATAC</button>
+<button id="fire">🔥<br>FIRE</button>
 </div>
-<button id="restart">REÎNCEPE LUPTA</button>
+</div>
+<div id="overlay">
+<h1>🐰 CUTE WARRIORS</h1>
+<h2>3.0 – PINK SHADOW</h2>
+<p>Flame Bunny are nevoie de tine!<br>Învinge cei trei adversari și câștigă arena.</p>
+<button id="start">START BATTLE ⚔️</button>
+</div>
 </div>
 <script>
-const arena=document.querySelector("#arena");
-const hero=document.querySelector("#hero");
-const enemiesBox=document.querySelector("#enemies");
-const hpText=document.querySelector("#hp");
-const scoreText=document.querySelector("#score");
-const leftText=document.querySelector("#left");
-const message=document.querySelector("#message");
-const knob=document.querySelector("#knob");
-let x=50,y=65,hp=100,score=0,alive=true;
-let enemies=[],dx=0,dy=0,lastHit=0;
+const $=id=>document.getElementById(id);
+const world=$("world"),hero=$("hero");
+let x=50,y=70,hp=100,score=0,time=90;
+let enemies=[],running=false,dx=0,dy=0,lastDamage=0;
+let frame,lastTime=0;
 function spawn(){
-enemiesBox.innerHTML="";
 enemies=[];
+world.querySelectorAll(".enemy").forEach(e=>e.remove());
 for(let i=0;i<3;i++){
 let el=document.createElement("div");
-el.className="fighter enemy";
-el.textContent=["👾","🐲","👻"][i];
-enemiesBox.appendChild(el);
-enemies.push({el,x:20+i*30,y:22,hp:2});
+el.className="character enemy";
+el.innerHTML='<div class="hpbar"><span></span></div><div class="name">SHADOW</div>'+["👾","🐲","👻"][i]+'<div class="shadow"></div>';
+world.appendChild(el);
+enemies.push({el,x:20+i*30,y:25,hp:3,max:3,attack:0});
 }
 }
 function draw(){
 hero.style.left=x+"%";hero.style.top=y+"%";
-enemies.forEach(e=>{e.el.style.left=e.x+"%";e.el.style.top=e.y+"%"});
-}
-function update(){
-if(!alive)return;
-x=Math.max(9,Math.min(91,x+dx*.45));
-y=Math.max(12,Math.min(88,y+dy*.45));
 enemies.forEach(e=>{
-let vx=x-e.x,vy=y-e.y,d=Math.hypot(vx,vy);
-if(d>12){e.x+=vx/d*.12;e.y+=vy/d*.12}
-if(d<13&&Date.now()-lastHit>900){
-hp=Math.max(0,hp-5);hpText.textContent=hp;lastHit=Date.now();
-if(hp===0)end(false);
-}
+e.el.style.left=e.x+"%";e.el.style.top=e.y+"%";
+e.el.querySelector(".hpbar span").style.width=(e.hp/e.max*100)+"%";
 });
-draw();requestAnimationFrame(update);
+$("life").textContent=hp;
+$("score").textContent=score;
+$("remaining").textContent=enemies.length;
+$("heroBar").style.width=hp+"%";
 }
-function attack(power){
-if(!alive)return;
-let target=enemies.find(e=>Math.hypot(e.x-x,e.y-y)<35);
-if(target){
+function effect(px,py,symbol){
+let el=document.createElement("div");
+el.className="fx";el.textContent=symbol;
+el.style.left=px+"%";el.style.top=py+"%";
+$("effects").appendChild(el);
+setTimeout(()=>el.remove(),600);
+}
+function attack(power,range,symbol){
+if(!running)return;
+let target=enemies.filter(e=>Math.hypot(e.x-x,e.y-y)<range)
+.sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];
+effect(x,y,symbol);
+if(!target){$("message").textContent="Apropie-te de adversar!";return}
 target.hp-=power;
-message.textContent="✨ Pink Fire Blast!";
 if(target.hp<=0){
 target.el.remove();enemies=enemies.filter(e=>e!==target);
-score+=100;scoreText.textContent=score;leftText.textContent=enemies.length;
-if(!enemies.length)end(true);
+score+=100;
+$("message").textContent="VICTORIE ÎN LUPTĂ! +100 ⭐";
+if(!enemies.length)finish(true);
+}else $("message").textContent="LOVEȘTE! Încă un atac!";
+draw();
 }
-}else message.textContent="Apropie-te de un adversar!";
+function finish(win){
+running=false;cancelAnimationFrame(frame);
+$("overlay").classList.remove("hidden");
+$("overlay").innerHTML="<h1>"+(win?"🏆 VICTORIE!":"💜 ÎNCEARCĂ DIN NOU")+"</h1><h2>"+(win?"Flame Bunny a cucerit arena!":"Flame Bunny are nevoie de ajutor!")+"</h2><p>Scor final: "+score+"</p><button id='start'>JOACĂ DIN NOU</button>";
+$("start").onclick=start;
 }
-function end(win){
-alive=false;dx=dy=0;
-message.textContent=win?"🏆 VICTORIE! Flame Bunny a câștigat!":"💜 Ai pierdut! Încearcă din nou!";
+function update(now){
+if(!running)return;
+let dt=Math.min((now-lastTime)/16.67,2)||1;
+lastTime=now;
+x=Math.max(7,Math.min(93,x+dx*.65*dt));
+y=Math.max(10,Math.min(90,y+dy*.65*dt));
+enemies.forEach(e=>{
+let vx=x-e.x,vy=y-e.y,d=Math.hypot(vx,vy)||1;
+if(d>10){e.x+=vx/d*.16*dt;e.y+=vy/d*.16*dt}
+if(d<12&&now-e.attack>1000){
+hp=Math.max(0,hp-7);e.attack=now;
+if(hp<=0)finish(false);
 }
-document.querySelector("#attack").onclick=()=>attack(1);
-document.querySelector("#special").onclick=()=>attack(2);
-document.querySelector("#restart").onclick=()=>{
-x=50;y=65;hp=100;score=0;alive=true;
-hpText.textContent=hp;scoreText.textContent=score;leftText.textContent=3;
-message.textContent="Flame Bunny, pregătește-te de luptă!";
-spawn();draw();requestAnimationFrame(update);
-};
-let active=false;
-const stick=document.querySelector("#stick");
-stick.addEventListener("pointerdown",e=>{active=true;stick.setPointerCapture(e.pointerId);moveStick(e)});
-stick.addEventListener("pointermove",e=>{if(active)moveStick(e)});
-function moveStick(e){
-let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
-let a=Math.atan2(e.clientY-cy,e.clientX-cx),d=Math.min(35,Math.hypot(e.clientX-cx,e.clientY-cy));
-dx=Math.cos(a)*d/35;dy=Math.sin(a)*d/35;
-knob.style.left=(33+dx*28)+"px";knob.style.top=(33+dy*28)+"px";
+});
+draw();
+frame=requestAnimationFrame(update);
 }
-function release(){active=false;dx=dy=0;knob.style.left="31px";knob.style.top="31px"}
-stick.addEventListener("pointerup",release);
-stick.addEventListener("pointercancel",release);
-spawn();draw();requestAnimationFrame(update);
+function start(){
+$("overlay").classList.add("hidden");
+x=50;y=70;hp=100;score=0;time=90;
+$("message").textContent="Învinge adversarii!";
+spawn();draw();running=true;lastTime=performance.now();
+cancelAnimationFrame(frame);frame=requestAnimationFrame(update);
+}
+$("start").onclick=start;
+$("hit").onclick=()=>attack(1,23,"⚔️");
+$("fire").onclick=()=>attack(3,35,"🔥");
+let stick=$("stick"),knob=$("knob"),active=false;
+stick.onpointerdown=e=>{active=true;stick.setPointerCapture(e.pointerId);move(e)};
+stick.onpointermove=e=>{if(active)move(e)};
+function move(e){
+let r=stick.getBoundingClientRect(),aX=e.clientX-r.left-r.width/2,aY=e.clientY-r.top-r.height/2;
+let d=Math.max(1,Math.hypot(aX,aY)),scale=Math.min(1,35/d);
+dx=aX/d*scale;dy=aY/d*scale;
+knob.style.left=(30+dx*28)+"px";knob.style.top=(30+dy*28)+"px";
+}
+function release(){active=false;dx=dy=0;knob.style.left="30px";knob.style.top="30px"}
+stick.onpointerup=release;stick.onpointercancel=release;
+setInterval(()=>{
+if(running&&time>0){time--;$("time").textContent=time;if(time===0)finish(false)}
+},1000);
+spawn();draw();
 </script>
 </body>
 </html>
